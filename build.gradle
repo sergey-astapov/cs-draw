@@ -1,0 +1,65 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+allprojects {
+    apply plugin: 'scala'
+    apply plugin: 'idea'
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    def scalaMajor = '2.12'
+    def scalaMinor = '4'
+    def scalaCombVersion = '1.1.1'
+    def validationVersion = '2.0.0.Final'
+    def logbackVersion = '1.1.7'
+    def slf4jVersion = '1.7.22'
+
+    dependencies {
+        compile(
+                "org.scala-lang:scala-library:$scalaMajor.$scalaMinor",
+                "ch.qos.logback:logback-core:$logbackVersion",
+                "ch.qos.logback:logback-classic:$logbackVersion",
+                "org.slf4j:slf4j-api:$slf4jVersion"
+        )
+
+        testCompile(
+                "junit:junit:4.12",
+                "org.scalatest:scalatest_$scalaMajor:3.0.1"
+        )
+    }
+
+    task wrapper(type: Wrapper) {
+        gradleVersion = '3.5'
+    }
+
+    sourceSets {
+        main {
+            scala {
+                srcDirs = [
+                        'src/main/scala',
+                        'src/main/java'
+                ]
+            }
+            java {
+                srcDirs = []
+            }
+        }
+    }
+
+    jar {
+        baseName = 'draw'
+        version =  '0.0.1-SNAPSHOT'
+    }
+}
