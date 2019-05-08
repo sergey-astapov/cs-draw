@@ -30,7 +30,7 @@ class ConsoleController(private val publisher: Publisher[Command]) {
 
 class ConsoleView extends Listener[ModelChanged]{
   override def handle(e: ModelChanged): Unit = {
-    println(e.charsStr)
+    println(e.charsStr())
     println()
     print("enter command : ")
   }

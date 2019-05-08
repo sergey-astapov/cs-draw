@@ -1,6 +1,8 @@
 package io.draw
 
 package object api {
+  val MAX_AREA: Long = 80 * 80
+
   case class Point(x: Int, y: Int) {
     def isInside(w: Int, h: Int): Boolean = x > 0 && y > 0 && x <= w && y <= h
   }
@@ -15,6 +17,7 @@ package object api {
 
   private def isNumber(x: String): Boolean = x forall Character.isDigit
   private def isNumber(l: List[String]): Boolean = l.forall(isNumber)
+  private def leqMaxArea(w: String, h: String): Boolean = isNumber(List(w, h)) && w.toInt * h.toInt <= MAX_AREA
 
   sealed trait Command
 
@@ -27,7 +30,7 @@ package object api {
 
   object Command {
     def apply(s: String): Command = s.split(" ").toList match {
-      case l @ List("C", w, h) if isNumber(l.tail) => CanvasCommand(w.toInt, h.toInt)
+      case l @ List("C", w, h) if leqMaxArea(w, h) => CanvasCommand(w.toInt, h.toInt)
       case l @ List("L", x0, y0, x1, y1) if isNumber(l.tail) => LineCommand(Point(x0, y0), Point(x1, y1))
       case l @ List("R", x0, y0, x1, y1) if isNumber(l.tail) => RectangleCommand(Point(x0, y0), Point(x1, y1))
       case List("B", x, y, c) if isNumber(List(x, y)) => BucketCommand(Point(x, y), c.charAt(0))
@@ -57,11 +60,9 @@ package object api {
   }
 
   case class ModelChanged(width: Int, height: Int, chars: Array[Array[Char]]) {
-    def charsStr: String = {
-      val strings = for (arr <- chars) yield {
+    def charsStr(del: String = "\n"): String =
+      (for (arr <- chars) yield {
         arr.mkString
-      }
-      strings.reduce(_ + "\n" + _)
-    }
+      }).reduce(_ + del + _)
   }
 }

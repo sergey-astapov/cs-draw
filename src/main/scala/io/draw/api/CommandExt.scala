@@ -7,6 +7,7 @@ object CommandExt {
       case LineCommand(p0, p1) => LineAdded(v, p0, p1)
       case RectangleCommand(p0, p1) => RectangleAdded(v, p0, p1)
       case BucketCommand(p, ch) => BucketAdded(v, p, ch)
+      case _ => NoopEvent
     }
   }
 }

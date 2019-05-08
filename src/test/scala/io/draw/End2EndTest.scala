@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 
 class End2EndTest extends FunSuite {
   var res: String = ""
-  lazy val listener: Listener[ModelChanged] = (m: ModelChanged) => res = m.charsStr
+  lazy val listener: Listener[ModelChanged] = (m: ModelChanged) => res = m.charsStr()
   lazy val ds = new DrawService(SimpleEventStore(), new SimplePublisher[ModelChanged](listener))
   lazy val controller = new ConsoleController(new SimplePublisher[Command](ds))
 
@@ -29,6 +29,34 @@ class End2EndTest extends FunSuite {
       """----------------------
         ||                    |
         ||                    |
+        ||                    |
+        ||                    |
+        |----------------------""".stripMargin
+    )(res)
+  }
+
+  test("Horizontal line command") {
+    controller.submit("C 20 4")
+    controller.submit("L 1 2 6 2")
+
+    assertResult(
+      """----------------------
+        ||                    |
+        ||xxxxxx              |
+        ||                    |
+        ||                    |
+        |----------------------""".stripMargin
+    )(res)
+  }
+
+  test("Vertical line command") {
+    controller.submit("C 20 4")
+    controller.submit("L 1 2 6 2")
+
+    assertResult(
+      """----------------------
+        ||                    |
+        ||xxxxxx              |
         ||                    |
         ||                    |
         |----------------------""".stripMargin

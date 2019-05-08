@@ -15,6 +15,18 @@ class CommandTest extends FunSuite {
     )(Command("C 20 4"))
   }
 
+  test("Limit canvas command") {
+    assertResult(
+      CanvasCommand(80, 80)
+    )(Command("C 80 80"))
+  }
+
+  test("Unsupported canvas command") {
+    assertResult(
+      UnsupportedCommand("C 81 80")
+    )(Command("C 81 80"))
+  }
+
   test("Line command") {
     assertResult(
       LineCommand(Point(1, 2), Point(6, 2))
@@ -33,7 +45,7 @@ class CommandTest extends FunSuite {
     )(Command("Q"))
   }
 
-  test("Unknown command") {
+  test("Unsupported command") {
     assertResult(
       UnsupportedCommand("XXX")
     )(Command("XXX"))
