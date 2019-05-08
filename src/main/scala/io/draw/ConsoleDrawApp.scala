@@ -9,31 +9,28 @@ object ConsoleDrawApp extends App {
   lazy val view = new ConsoleView
   lazy val ds = new DrawService(SimpleEventStore(), new SimplePublisher[ModelChanged](view))
   lazy val controller = new ConsoleController(new SimplePublisher[Command](ds))
-  controller.userLoop()
+  controller.loop
 }
 
-class ConsoleController(val publisher: Publisher[Command]) {
-  def userLoop(): Unit = {
-    var flag = true
-    while (flag) {
-      val scanner = new Scanner(System.in)
-      Command(scanner.nextLine()) match {
-        case QuitCommand => flag = false
-        case c => publisher.publish(c)
-      }
-    }
+class ConsoleController(private val publisher: Publisher[Command]) {
+  def loop(): Unit = {
+    System.out.print("enter command : ")
+    val scanner = new Scanner(System.in)
+    while (submit(scanner.nextLine())) {}
+  }
+
+  def submit(str: String): Boolean = Command(str) match {
+    case QuitCommand => false
+    case UnsupportedCommand(_) => true
+    case c =>
+      publisher.publish(c)
+      true
   }
 }
 
 class ConsoleView extends Listener[ModelChanged]{
   override def handle(e: ModelChanged): Unit = {
-    for (
-      aChars <- e.chars;
-      c <- aChars
-    ) yield {
-      print(c)
-      //System.out.println();
-    }
+    println(e.charsStr)
     println()
     print("enter command : ")
   }
