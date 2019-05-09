@@ -11,9 +11,7 @@ class E2ETest extends FunSuite {
   lazy val controller = new ConsoleController(new SimplePublisher[Command](ds))
 
   test("Empty command") {
-    assertResult(
-      true
-    )(controller.submit(""))
+    controller.submit("")
 
     assertResult(
       ""
@@ -21,9 +19,7 @@ class E2ETest extends FunSuite {
   }
 
   test("Canvas command") {
-    assertResult(
-      true
-    )(controller.submit("C 20 4"))
+    controller.submit("C 20 4")
 
     assertResult(
       """----------------------
@@ -43,6 +39,20 @@ class E2ETest extends FunSuite {
       """----------------------
         ||                    |
         ||xxxxxx              |
+        ||                    |
+        ||                    |
+        |----------------------""".stripMargin
+    )(res)
+  }
+
+  test("Horizontal line command error") {
+    controller.submit("C 20 4")
+    controller.submit("L 25 2 25 3")
+
+    assertResult(
+      """----------------------
+        ||                    |
+        ||                    |
         ||                    |
         ||                    |
         |----------------------""".stripMargin

@@ -14,14 +14,17 @@ object ConsoleDrawApp extends App {
 
 class ConsoleController(private val publisher: Publisher[Command]) {
   def loop(): Unit = {
-    System.out.print("enter command : ")
+    print("enter command: ")
     val scanner = new Scanner(System.in)
     while (submit(scanner.nextLine())) {}
   }
 
   def submit(str: String): Boolean = Command(str) match {
     case QuitCommand => false
-    case UnsupportedCommand(_) => true
+    case UnsupportedCommand(s) =>
+      println(s"Unsupported=[$s]")
+      print("enter command: ")
+      true
     case c =>
       publisher.publish(c)
       true
@@ -32,6 +35,6 @@ class ConsoleView extends Listener[ModelChanged]{
   override def handle(e: ModelChanged): Unit = {
     println(e.charsStr())
     println()
-    print("enter command : ")
+    print("enter command: ")
   }
 }
