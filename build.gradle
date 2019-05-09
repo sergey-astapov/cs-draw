@@ -42,6 +42,16 @@ allprojects {
         gradleVersion = '3.5'
     }
 
+    task spec(dependsOn: ['testClasses'], type: JavaExec) {
+        main = 'org.scalatest.tools.Runner'
+        args = ['-R', 'build/classes/test', '-o']
+        classpath = sourceSets.test.runtimeClasspath
+    }
+
+    build.dependsOn spec
+
+    assemble.dependsOn spec
+
     sourceSets {
         main {
             scala {

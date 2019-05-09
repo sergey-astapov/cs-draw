@@ -41,6 +41,7 @@ package object api {
 
   class Version(val v: Int) extends AnyVal {
     def next: Version = new Version(v + 1)
+    override def toString: String = s"v=${v.toString}"
   }
 
   object Version {

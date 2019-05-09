@@ -4,7 +4,7 @@ import io.draw.api.{Command, ModelChanged}
 import io.draw.service.{DrawService, Listener, SimpleEventStore, SimplePublisher}
 import org.scalatest.FunSuite
 
-class End2EndTest extends FunSuite {
+class E2ETest extends FunSuite {
   var res: String = ""
   lazy val listener: Listener[ModelChanged] = (m: ModelChanged) => res = m.charsStr()
   lazy val ds = new DrawService(SimpleEventStore(), new SimplePublisher[ModelChanged](listener))
@@ -76,6 +76,23 @@ class End2EndTest extends FunSuite {
         ||xxxxxx       x   x  |
         ||     x       xxxxx  |
         ||     x              |
+        |----------------------""".stripMargin
+    )(res)
+  }
+
+  test("Bucket command") {
+    controller.submit("C 20 4")
+    controller.submit("L 1 2 6 2")
+    controller.submit("L 6 3 6 4")
+    controller.submit("R 14 1 18 3")
+    controller.submit("B 10 3 o")
+
+    assertResult(
+      """----------------------
+        ||oooooooooooooxxxxxoo|
+        ||xxxxxxooooooox   xoo|
+        ||     xoooooooxxxxxoo|
+        ||     xoooooooooooooo|
         |----------------------""".stripMargin
     )(res)
   }
