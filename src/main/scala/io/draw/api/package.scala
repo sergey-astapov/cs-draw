@@ -52,7 +52,10 @@ package object api {
   }
 
   case class CanvasAdded(version: Version, width: Int, height: Int) extends Event
-  case class LineAdded(version: Version, p0: Point, p1: Point) extends Event
+  case class LineAdded(version: Version, p0: Point, p1: Point) extends Event {
+    def isHorizontal: Boolean = p0.y == p1.y
+    def isVertical: Boolean = p0.x == p1.x
+  }
   case class RectangleAdded(version: Version, p0: Point, p1: Point) extends Event
   case class BucketAdded(version: Version, p: Point, c: Char) extends Event
   case object NoopEvent extends Event {

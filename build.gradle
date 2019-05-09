@@ -21,8 +21,6 @@ allprojects {
 
     def scalaMajor = '2.12'
     def scalaMinor = '4'
-    def scalaCombVersion = '1.1.1'
-    def validationVersion = '2.0.0.Final'
     def logbackVersion = '1.1.7'
     def slf4jVersion = '1.7.22'
 

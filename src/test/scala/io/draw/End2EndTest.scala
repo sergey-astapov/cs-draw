@@ -52,13 +52,30 @@ class End2EndTest extends FunSuite {
   test("Vertical line command") {
     controller.submit("C 20 4")
     controller.submit("L 1 2 6 2")
+    controller.submit("L 6 3 6 4")
 
     assertResult(
       """----------------------
         ||                    |
         ||xxxxxx              |
-        ||                    |
-        ||                    |
+        ||     x              |
+        ||     x              |
+        |----------------------""".stripMargin
+    )(res)
+  }
+
+  test("Rectangle command") {
+    controller.submit("C 20 4")
+    controller.submit("L 1 2 6 2")
+    controller.submit("L 6 3 6 4")
+    controller.submit("R 14 1 18 3")
+
+    assertResult(
+      """----------------------
+        ||             xxxxx  |
+        ||xxxxxx       x   x  |
+        ||     x       xxxxx  |
+        ||     x              |
         |----------------------""".stripMargin
     )(res)
   }

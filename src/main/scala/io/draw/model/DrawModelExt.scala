@@ -25,8 +25,22 @@ object DrawModelExt {
           }
         }
         DrawModel(v, w, h, chars)
-      case LineAdded(v, p0, p1) => ???
-      case RectangleAdded(v, p0, p1) => ???
+      case la @ LineAdded(v, p0, p1) if la.isHorizontal =>
+        for (j <- p0.x to p1.x) m.chars(p0.y)(j) = X_CHAR
+        m.copy(version = v)
+      case la @ LineAdded(v, p0, p1) if la.isVertical =>
+        for (i <- p0.y to p1.y) m.chars(i)(p0.x) = X_CHAR
+        m.copy(version = v)
+      case RectangleAdded(v, p0, p1) =>
+        for (j <- p0.x to p1.x) {
+          m.chars(p0.y)(j) = X_CHAR
+          m.chars(p1.y)(j) = X_CHAR
+        }
+        for (i <- p0.y + 1 until p1.y) {
+          m.chars(i)(p0.x) = X_CHAR
+          m.chars(i)(p1.x) = X_CHAR
+        }
+        m.copy(version = v)
       case _ => ???
     }
   }
