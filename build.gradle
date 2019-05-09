@@ -69,5 +69,11 @@ allprojects {
     jar {
         baseName = 'draw'
         version =  '0.0.1-SNAPSHOT'
+        manifest {
+            attributes 'Main-Class': 'io.draw.ConsoleDrawApp'
+        }
+        from {
+            configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        }
     }
 }
