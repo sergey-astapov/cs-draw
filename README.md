@@ -88,7 +88,7 @@ enter command: Q
 ## How to build
 
 ```
-./gradlew assemble
+./gradlew clean assemble
 ```
 
 ## How to run
