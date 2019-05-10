@@ -1,7 +1,5 @@
 package io.draw
 
-import io.draw.api.LineCommand.isSupported
-
 package object api {
   val MAX_AREA: Long = 80 * 80
 
@@ -34,14 +32,12 @@ package object api {
   case object QuitCommand extends Command
   case class UnsupportedCommand(s: String) extends Command
 
-  object LineCommand {
-    def isSupported(p0: Point, p1:Point): Boolean = p0.isHorizontalWith(p1) || p0.isVerticalWith(p1)
-  }
+  private def isLineSupported(p0: Point, p1:Point): Boolean = p0.isHorizontalWith(p1) || p0.isVerticalWith(p1)
 
   object Command {
     def apply(s: String): Command = s.split(" ").toList match {
-      case l @ List("C", w, h) if leqMaxArea(w, h) => CanvasCommand(w.toInt, h.toInt)
-      case l @ List("L", x0, y0, x1, y1) if isNumber(l.tail) && isSupported(Point(x0, y0), Point(x1, y1)) =>
+      case List("C", w, h) if leqMaxArea(w, h) => CanvasCommand(w.toInt, h.toInt)
+      case l @ List("L", x0, y0, x1, y1) if isNumber(l.tail) && isLineSupported(Point(x0, y0), Point(x1, y1)) =>
         LineCommand(Point(x0, y0), Point(x1, y1))
       case l @ List("R", x0, y0, x1, y1) if isNumber(l.tail) => RectangleCommand(Point(x0, y0), Point(x1, y1))
       case List("B", x, y, c) if isNumber(List(x, y)) => BucketCommand(Point(x, y), c.charAt(0))

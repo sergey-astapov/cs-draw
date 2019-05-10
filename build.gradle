@@ -27,6 +27,7 @@ allprojects {
     dependencies {
         compile(
                 "org.scala-lang:scala-library:$scalaMajor.$scalaMinor",
+                "com.typesafe.scala-logging:scala-logging_$scalaMajor:3.9.2",
                 "ch.qos.logback:logback-core:$logbackVersion",
                 "ch.qos.logback:logback-classic:$logbackVersion",
                 "org.slf4j:slf4j-api:$slf4jVersion"

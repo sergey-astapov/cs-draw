@@ -1,17 +1,15 @@
 package io.draw.model
 
+import com.typesafe.scalalogging.StrictLogging
 import io.draw.api._
-import org.slf4j.LoggerFactory
 
-object DrawModelExt {
-  private val LOG = LoggerFactory.getLogger(getClass)
-
+object DrawModelExt extends StrictLogging {
   private val X_CHAR = 'x'
   private val SPACE_CHAR = ' '
 
   implicit class DraModelOps(m: DrawModel) {
     def apply(e: Event): DrawModel = {
-      LOG.info("apply event={}", e)
+      logger.info(s"apply event=$e")
 
       e match {
         case CanvasAdded(v, w, h) if w * h <= MAX_AREA =>

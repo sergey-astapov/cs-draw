@@ -10,7 +10,7 @@ package object service {
   trait EventStore {
     def add(e: Event)
     def all: List[Event]
-    def snapshot
+    def snapshot()
   }
 
   class SimpleEventStore extends EventStore {
@@ -20,7 +20,7 @@ package object service {
 
     override def all: List[Event] = events.toList
 
-    override def snapshot: Unit = ???
+    override def snapshot(): Unit = ???
   }
 
   object SimpleEventStore {
@@ -42,6 +42,6 @@ package object service {
 
     override def publish(t: T): Unit = list.asScala.foreach(_.handle(t))
 
-    def add(listeners: List[Listener[T]]) = list.addAll(listeners.asJava)
+    def add(listeners: List[Listener[T]]): Unit = list.addAll(listeners.asJava)
   }
 }

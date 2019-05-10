@@ -12,13 +12,13 @@ object ConsoleDrawApp extends App {
   private val ds = new DrawService(SimpleEventStore(), dsPublisher)
   private val controller = new ConsoleController(new SimplePublisher[Command](List(ds)))
   dsPublisher.add(List(view, controller))
-  controller.loop
+  controller.loop()
 }
 
 class ConsoleController(private val publisher: Publisher[Command]) extends Listener[ModelChanged] {
   private val cs: AtomicReference[Option[CanvasSize]] = new AtomicReference[Option[CanvasSize]](None)
 
-  def loop: Unit = {
+  def loop(): Unit = {
     print("enter command: ")
     val scanner = new Scanner(System.in)
     while (submit(scanner.nextLine())) {}
