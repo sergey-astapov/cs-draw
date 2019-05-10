@@ -35,6 +35,12 @@ class CommandTest extends FunSuite {
 
   test("Line command error") {
     assertResult(
+      UnsupportedCommand("L 1 2 3 4")
+    )(Command("L 1 2 3 4"))
+  }
+
+  test("Line command error 2") {
+    assertResult(
       UnsupportedCommand("L M N P O")
     )(Command("L M N P O"))
   }

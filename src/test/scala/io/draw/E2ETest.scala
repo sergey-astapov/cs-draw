@@ -2,13 +2,27 @@ package io.draw
 
 import io.draw.api.{Command, ModelChanged}
 import io.draw.service.{DrawService, Listener, SimpleEventStore, SimplePublisher}
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
-class E2ETest extends FunSuite {
-  var res: String = ""
-  lazy val listener: Listener[ModelChanged] = (m: ModelChanged) => res = m.charsStr()
-  lazy val ds = new DrawService(SimpleEventStore(), new SimplePublisher[ModelChanged](listener))
-  lazy val controller = new ConsoleController(new SimplePublisher[Command](ds))
+class E2ETest extends FunSuite with BeforeAndAfterEach {
+  var res: String = _
+  var listener: Listener[ModelChanged] = _
+  var ds: DrawService = _
+  var controller: ConsoleController = _
+
+  override def beforeEach() {
+    val dsPublisher = new SimplePublisher[ModelChanged](List())
+    ds = new DrawService(SimpleEventStore(), dsPublisher)
+    controller = new ConsoleController(new SimplePublisher[Command](List(ds)))
+
+    res = ""
+    val listener: Listener[ModelChanged] = (m: ModelChanged) => res = m.charsStr()
+    dsPublisher.add(List(listener, controller))
+  }
+
+  override def afterEach() {
+    res = ""
+  }
 
   test("Empty command") {
     controller.submit("")
@@ -45,9 +59,31 @@ class E2ETest extends FunSuite {
     )(res)
   }
 
+  test("Canvas command goes first") {
+    controller.submit("L 1 2 6 2")
+
+    assertResult(
+      ""
+    )(res)
+  }
+
   test("Horizontal line command error") {
     controller.submit("C 20 4")
     controller.submit("L 25 2 25 3")
+
+    assertResult(
+      """----------------------
+        ||                    |
+        ||                    |
+        ||                    |
+        ||                    |
+        |----------------------""".stripMargin
+    )(res)
+  }
+
+  test("Unsupported line command error") {
+    controller.submit("C 20 4")
+    controller.submit("L 1 2 3 4")
 
     assertResult(
       """----------------------

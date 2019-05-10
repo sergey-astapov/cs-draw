@@ -1,10 +1,16 @@
 package io.draw
 
+import io.draw.api.LineCommand.isSupported
+
 package object api {
   val MAX_AREA: Long = 80 * 80
 
+  case class CanvasSize(w: Int, h: Int)
+
   case class Point(x: Int, y: Int) {
-    def isInside(w: Int, h: Int): Boolean = x > 0 && y > 0 && x <= w && y <= h
+    def isInside(cs: CanvasSize): Boolean = x > 0 && y > 0 && x <= cs.w && y <= cs.h
+    def isHorizontalWith(p: Point): Boolean = y == p.y
+    def isVerticalWith(p: Point): Boolean = x == p.x
   }
 
   object Point {
@@ -28,10 +34,15 @@ package object api {
   case object QuitCommand extends Command
   case class UnsupportedCommand(s: String) extends Command
 
+  object LineCommand {
+    def isSupported(p0: Point, p1:Point): Boolean = p0.isHorizontalWith(p1) || p0.isVerticalWith(p1)
+  }
+
   object Command {
     def apply(s: String): Command = s.split(" ").toList match {
       case l @ List("C", w, h) if leqMaxArea(w, h) => CanvasCommand(w.toInt, h.toInt)
-      case l @ List("L", x0, y0, x1, y1) if isNumber(l.tail) => LineCommand(Point(x0, y0), Point(x1, y1))
+      case l @ List("L", x0, y0, x1, y1) if isNumber(l.tail) && isSupported(Point(x0, y0), Point(x1, y1)) =>
+        LineCommand(Point(x0, y0), Point(x1, y1))
       case l @ List("R", x0, y0, x1, y1) if isNumber(l.tail) => RectangleCommand(Point(x0, y0), Point(x1, y1))
       case List("B", x, y, c) if isNumber(List(x, y)) => BucketCommand(Point(x, y), c.charAt(0))
       case List("Q") => QuitCommand
@@ -54,8 +65,8 @@ package object api {
 
   case class CanvasAdded(version: Version, width: Int, height: Int) extends Event
   case class LineAdded(version: Version, p0: Point, p1: Point) extends Event {
-    def isHorizontal: Boolean = p0.y == p1.y
-    def isVertical: Boolean = p0.x == p1.x
+    def isHorizontal: Boolean = p0.isHorizontalWith(p1)
+    def isVertical: Boolean = p0.isVerticalWith(p1)
   }
   case class RectangleAdded(version: Version, p0: Point, p1: Point) extends Event
   case class BucketAdded(version: Version, p: Point, c: Char) extends Event

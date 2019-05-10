@@ -16,7 +16,7 @@ class DrawService(val es: EventStore, val publisher: Publisher[ModelChanged]) ex
     c.event(m.version.next) match {
       case NoopEvent =>
         LOG.info("Unsupported command={}", c)
-      case e if c.isInside(m.width, m.height) =>
+      case e if c.isInside(CanvasSize(m.width, m.height)) =>
         val nm = m.apply(e)
         es.add(e)
         publisher.publish(ModelChanged(nm.width, nm.height, nm.chars.clone()))

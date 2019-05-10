@@ -1,6 +1,9 @@
 package io.draw
 
+import java.util.concurrent.CopyOnWriteArrayList
+
 import io.draw.api.Event
+
 import scala.collection.mutable
 
 package object service {
@@ -32,7 +35,13 @@ package object service {
     def handle(t: T)
   }
 
-  class SimplePublisher[T](listener: Listener[T]) extends Publisher[T] {
-    override def publish(t: T): Unit = listener.handle(t)
+  class SimplePublisher[T](listeners: List[Listener[T]]) extends Publisher[T] {
+    import scala.collection.JavaConverters._
+
+    private val list = new CopyOnWriteArrayList[Listener[T]](listeners.asJava)
+
+    override def publish(t: T): Unit = list.asScala.foreach(_.handle(t))
+
+    def add(listeners: List[Listener[T]]) = list.addAll(listeners.asJava)
   }
 }
