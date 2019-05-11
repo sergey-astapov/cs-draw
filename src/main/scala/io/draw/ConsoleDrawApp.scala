@@ -1,61 +1,50 @@
 package io.draw
 
 import java.util.Scanner
-import java.util.concurrent.atomic.AtomicReference
 
 import io.draw.api._
 import io.draw.service._
 
 object ConsoleDrawApp extends App {
   private val view = new ConsoleView
-  private val dsPublisher = new SimplePublisher[ModelChanged](List())
+  private val dsPublisher = new SimplePublisher[ModelEvent](List())
   private val ds = new DrawService(SimpleEventStore(), dsPublisher)
   private val controller = new ConsoleController(new SimplePublisher[Command](List(ds)))
   dsPublisher.add(List(view, controller))
   controller.loop()
 }
 
-class ConsoleController(private val publisher: Publisher[Command]) extends Listener[ModelChanged] {
-  private val cs: AtomicReference[Option[CanvasSize]] = new AtomicReference[Option[CanvasSize]](None)
-
+class ConsoleController(private val publisher: Publisher[Command]) extends Listener[ModelEvent] {
   def loop(): Unit = {
     print("enter command: ")
     val scanner = new Scanner(System.in)
     while (submit(scanner.nextLine())) {}
   }
 
-  import io.draw.api.CommandExt._
-
-  def submit(str: String): Boolean = (Command(str), cs.get()) match {
-    case (QuitCommand, _) => false
-    case (UnsupportedCommand(s), _) =>
-      println(s"Unsupported=[$s]")
-      print("enter command: ")
+  def submit(str: String): Boolean = Command(str) match {
+    case QuitCommand => false
+    case UnsupportedCommand(s) =>
+      handle(ModelUnsupportedOperation(Version.empty, s"Unsupported command=$s"))
       true
-    case (c @ CanvasCommand(_, _), _) => send(c)
-    case (c, None) =>
-      println(s"Unsupported=[$c]. You need to setup canvas first")
-      print("enter command: ")
-      true
-    case (c, Some(x)) if c.isInside(x) => send(c)
-    case (c, Some(x)) =>
-      println(s"Unsupported=[$c]. Canvas size=$x")
-      print("enter command: ")
+    case c  =>
+      publisher.publish(c)
       true
   }
 
-  private def send(c: Command) = {
-    publisher.publish(c)
-    true
+  override def handle(e: ModelEvent): Unit = e match {
+    case ModelUnsupportedOperation(_, s) =>
+      println(s"Unsupported, details='$s'")
+      print("enter command: ")
+    case _ =>
   }
-
-  override def handle(e: ModelChanged): Unit = cs.set(Some(CanvasSize(e.width, e.height)))
 }
 
-class ConsoleView extends Listener[ModelChanged]{
-  override def handle(e: ModelChanged): Unit = {
-    println(e.charsStr())
-    println()
-    print("enter command: ")
+class ConsoleView extends Listener[ModelEvent]{
+  override def handle(e: ModelEvent): Unit = e match {
+    case mc @ ModelChanged(_, _, _, _) =>
+      println(mc.charsStr())
+      println()
+      print("enter command: ")
+    case _ =>
   }
 }

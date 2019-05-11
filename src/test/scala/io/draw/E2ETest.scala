@@ -1,6 +1,6 @@
 package io.draw
 
-import io.draw.api.{Command, ModelChanged}
+import io.draw.api.{Command, ModelChanged, ModelEvent}
 import io.draw.service.{DrawService, Listener, SimpleEventStore, SimplePublisher}
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
@@ -11,12 +11,12 @@ class E2ETest extends FunSuite with BeforeAndAfterEach {
   var controller: ConsoleController = _
 
   override def beforeEach() {
-    val dsPublisher = new SimplePublisher[ModelChanged](List())
+    val dsPublisher = new SimplePublisher[ModelEvent](List())
     ds = new DrawService(SimpleEventStore(), dsPublisher)
     controller = new ConsoleController(new SimplePublisher[Command](List(ds)))
 
     res = ""
-    val listener: Listener[ModelChanged] = (m: ModelChanged) => res = m.charsStr()
+    val listener: Listener[ModelEvent] = (me: ModelEvent) => res = me.toString()
     dsPublisher.add(List(listener, controller))
   }
 
@@ -63,7 +63,7 @@ class E2ETest extends FunSuite with BeforeAndAfterEach {
     controller.submit("L 1 2 6 2")
 
     assertResult(
-      ""
+      "Unsupported command=LineCommand(Point(1,2),Point(6,2))"
     )(res)
   }
 
@@ -72,12 +72,7 @@ class E2ETest extends FunSuite with BeforeAndAfterEach {
     controller.submit("L 25 2 25 3")
 
     assertResult(
-      """----------------------
-        ||                    |
-        ||                    |
-        ||                    |
-        ||                    |
-        |----------------------""".stripMargin
+      "Unsupported command=LineCommand(Point(25,2),Point(25,3))"
     )(res)
   }
 

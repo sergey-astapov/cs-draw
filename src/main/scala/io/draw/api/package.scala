@@ -23,12 +23,26 @@ package object api {
   private def isNumber(l: List[String]): Boolean = l.forall(isNumber)
   private def leqMaxArea(w: String, h: String): Boolean = isNumber(List(w, h)) && w.toInt * h.toInt <= MAX_AREA
 
-  sealed trait Command
+  sealed trait Command {
+    def isInside(cs: CanvasSize): Boolean = ???
+    def event(v: Version): Event = ???
+  }
 
-  case class CanvasCommand(width: Int, height: Int) extends Command
-  case class LineCommand(p0: Point, p1:Point) extends Command
-  case class RectangleCommand(p0: Point, p1: Point) extends Command
-  case class BucketCommand(p: Point, c: Char) extends Command
+  case class CanvasCommand(width: Int, height: Int) extends Command {
+    override def event(v: Version): Event = CanvasAdded(v, width, height)
+  }
+  case class LineCommand(p0: Point, p1:Point) extends Command {
+    override def isInside(cs: CanvasSize): Boolean = p0.isInside(cs) && p1.isInside(cs)
+    override def event(v: Version): Event = LineAdded(v, p0, p1)
+  }
+  case class RectangleCommand(p0: Point, p1: Point) extends Command {
+    override def isInside(cs: CanvasSize): Boolean = p0.isInside(cs) && p1.isInside(cs)
+    override def event(v: Version): Event = RectangleAdded(v, p0, p1)
+  }
+  case class BucketCommand(p: Point, c: Char) extends Command {
+    override def isInside(cs: CanvasSize): Boolean = p.isInside(cs)
+    override def event(v: Version): Event = BucketAdded(v, p, c)
+  }
   case object QuitCommand extends Command
   case class UnsupportedCommand(s: String) extends Command
 
@@ -70,10 +84,19 @@ package object api {
     override val version: Version = Version.empty
   }
 
-  case class ModelChanged(width: Int, height: Int, chars: Array[Array[Char]]) {
+  sealed trait ModelEvent {
+    val version: Version
+  }
+
+  case class ModelChanged(version: Version, width: Int, height: Int, chars: Array[Array[Char]]) extends ModelEvent {
     def charsStr(del: String = "\n"): String =
       (for (arr <- chars) yield {
         arr.mkString
       }).reduce(_ + del + _)
+
+    override def toString: String = charsStr()
+  }
+  case class ModelUnsupportedOperation(version: Version, details: String) extends ModelEvent {
+    override def toString: String = details
   }
 }
