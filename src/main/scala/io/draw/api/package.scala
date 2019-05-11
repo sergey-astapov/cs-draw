@@ -86,17 +86,9 @@ package object api {
 
   sealed trait ModelEvent {
     val version: Version
+    val s: String
   }
 
-  case class ModelChanged(version: Version, width: Int, height: Int, chars: Array[Array[Char]]) extends ModelEvent {
-    def charsStr(del: String = "\n"): String =
-      (for (arr <- chars) yield {
-        arr.mkString
-      }).reduce(_ + del + _)
-
-    override def toString: String = charsStr()
-  }
-  case class ModelUnsupportedOperation(version: Version, details: String) extends ModelEvent {
-    override def toString: String = details
-  }
+  case class ModelChanged(version: Version, s: String) extends ModelEvent
+  case class ModelUnsupportedOperation(version: Version, s: String) extends ModelEvent
 }

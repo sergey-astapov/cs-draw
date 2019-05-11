@@ -16,7 +16,7 @@ class E2ETest extends FunSuite with BeforeAndAfterEach {
     controller = new ConsoleController(new SimplePublisher[Command](List(ds)))
 
     res = ""
-    val listener: Listener[ModelEvent] = (me: ModelEvent) => res = me.toString()
+    val listener: Listener[ModelEvent] = (me: ModelEvent) => res = me.s
     dsPublisher.add(List(listener, controller))
   }
 

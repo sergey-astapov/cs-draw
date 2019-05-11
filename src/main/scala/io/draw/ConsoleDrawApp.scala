@@ -41,8 +41,8 @@ class ConsoleController(private val publisher: Publisher[Command]) extends Liste
 
 class ConsoleView extends Listener[ModelEvent]{
   override def handle(e: ModelEvent): Unit = e match {
-    case mc @ ModelChanged(_, _, _, _) =>
-      println(mc.charsStr())
+    case mc @ ModelChanged(_, s) =>
+      println(s)
       println()
       print("enter command: ")
     case _ =>
